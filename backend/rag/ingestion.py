@@ -123,10 +123,36 @@ def extract_docx_text(path: str) -> str:
     return "\n".join(p.text for p in doc.paragraphs if p.text.strip())
 
 
-def extract_pdf_text(path: str) -> str:
-    import fitz  # PyMuPDF
+def extract_pdf_text(path: str, ocr_threshold: int = 50) -> str:
+    import fitz
     doc = fitz.open(path)
-    return "\n".join(page.get_text() for page in doc)
+    native = "\n".join(page.get_text() for page in doc)
+    if len(native.strip()) >= ocr_threshold:
+        return native
+    # Scanned PDF: fall back to OCR
+    return _extract_pdf_ocr(doc)
+
+
+def _extract_pdf_ocr(doc) -> str:
+    try:
+        import pytesseract
+        from PIL import Image
+    except ImportError:
+        print("[ingestion] OCR skipped: install 'pytesseract Pillow' and Tesseract binary.")
+        return ""
+
+    import fitz
+    texts: list[str] = []
+    for page in doc:
+        pix = page.get_pixmap(matrix=fitz.Matrix(2, 2))
+        img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+        try:
+            text = pytesseract.image_to_string(img, lang="ita+eng")
+            if text.strip():
+                texts.append(text)
+        except Exception as e:
+            print(f"[ingestion] OCR error on page {page.number}: {e}")
+    return "\n".join(texts)
 
 
 def load_exercises_from_xlsx(path: str) -> list[dict]:
