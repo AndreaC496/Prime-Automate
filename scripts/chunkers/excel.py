@@ -38,12 +38,14 @@ def chunk_excel(filepath: str) -> list[dict]:
 
     chunks = []
     for row in rows[1:]:
+        if all(v is None for v in row):
+            continue
         data = dict(zip(headers, row))
-        name = str(row[idx_name]).strip() if idx_name is not None and row[idx_name] else ""
-        muscles = _split_list(row[idx_muscles]) if idx_muscles is not None else []
-        equipment = _split_list(row[idx_equipment]) if idx_equipment is not None else []
-        difficulty = str(row[idx_diff]).strip() if idx_diff is not None and row[idx_diff] else ""
-        category = str(row[idx_cat]).strip() if idx_cat is not None and row[idx_cat] else ""
+        name = str(row[idx_name]).strip() if idx_name is not None and idx_name < len(row) and row[idx_name] else ""
+        muscles = _split_list(row[idx_muscles]) if idx_muscles is not None and idx_muscles < len(row) else []
+        equipment = _split_list(row[idx_equipment]) if idx_equipment is not None and idx_equipment < len(row) else []
+        difficulty = str(row[idx_diff]).strip() if idx_diff is not None and idx_diff < len(row) and row[idx_diff] else ""
+        category = str(row[idx_cat]).strip() if idx_cat is not None and idx_cat < len(row) and row[idx_cat] else ""
 
         lines = [f"Esercizio: {name}"]
         if muscles:
@@ -55,7 +57,7 @@ def chunk_excel(filepath: str) -> list[dict]:
         if category:
             lines.append(f"Categoria: {category}")
         # aggiunge campi extra non mappati
-        mapped = {idx_name, idx_muscles, idx_equipment, idx_diff, idx_cat}
+        mapped = {i for i in [idx_name, idx_muscles, idx_equipment, idx_diff, idx_cat] if i is not None}
         for i, (h, v) in enumerate(zip(headers, row)):
             if i not in mapped and v is not None and str(v).strip():
                 lines.append(f"{h}: {v}")
