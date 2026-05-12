@@ -142,6 +142,12 @@ def _extract_pdf_ocr(doc) -> str:
         return ""
 
     import fitz
+    import shutil
+
+    # Try to locate tesseract binary (Windows default path)
+    _tess = shutil.which("tesseract") or r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+    pytesseract.pytesseract.tesseract_cmd = _tess
+
     texts: list[str] = []
     for page in doc:
         pix = page.get_pixmap(matrix=fitz.Matrix(2, 2))
