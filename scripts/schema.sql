@@ -16,7 +16,8 @@ create table if not exists document_chunks (
 
 -- Indice HNSW per ricerca vettoriale (approximate nearest neighbor)
 create index if not exists document_chunks_embedding_idx
-  on document_chunks using hnsw (embedding vector_cosine_ops);
+  on document_chunks using hnsw (embedding vector_cosine_ops)
+  with (m = 32, ef_construction = 128);
 
 -- Indice GIN per full-text search italiano
 create index if not exists document_chunks_fts_idx
@@ -51,7 +52,7 @@ begin
            1 - (dc.embedding <=> query_embedding) as v_score,
            row_number() over (order by dc.embedding <=> query_embedding) as v_rank
     from document_chunks dc
-    where filter_metadata = '{}' or dc.metadata @> filter_metadata
+    where (filter_metadata is null or filter_metadata = '{}' or dc.metadata @> filter_metadata)
     order by dc.embedding <=> query_embedding
     limit match_count * 3
   ),
@@ -61,8 +62,9 @@ begin
              order by ts_rank(dc.fts, plainto_tsquery('italian', query_text)) desc
            ) as f_rank
     from document_chunks dc
-    where (filter_metadata = '{}' or dc.metadata @> filter_metadata)
+    where (filter_metadata is null or filter_metadata = '{}' or dc.metadata @> filter_metadata)
       and dc.fts @@ plainto_tsquery('italian', query_text)
+    order by ts_rank(dc.fts, plainto_tsquery('italian', query_text)) desc
     limit match_count * 3
   ),
   fused as (

@@ -16,6 +16,9 @@ response = httpx.post(
 )
 response.raise_for_status()
 data = response.json()
-dim = len(data["data"][0]["embedding"])
+try:
+    dim = len(data["data"][0]["embedding"])
+except (KeyError, IndexError) as e:
+    raise SystemExit(f"Unexpected response shape: {e}\nFull response: {data}")
 print(f"Embedding dimension: {dim}")
 print(f"Usa vector({dim}) nello schema SQL.")
