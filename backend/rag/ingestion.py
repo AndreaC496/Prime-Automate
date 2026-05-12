@@ -75,10 +75,10 @@ def normalize_exercise(raw: dict) -> dict:
         return ""
 
     name = _get("name", "nome", "Name", "Esercizio")
-    primary = _get("primaryMuscle", "muscolo_primario", "Muscolo Primario", "primary_muscle")
+    primary = _get("primaryMuscle", "muscolo_primario", "Muscolo Primario", "primary_muscle", "Gruppo Muscolare Primario")
     secondary = _get("secondaryMuscles", "muscoli_secondari", "Muscoli Secondari")
     category = _get("category", "categoria", "Categoria")
-    equipment = _get("equipment", "attrezzatura", "Attrezzatura")
+    equipment = _get("equipment", "attrezzatura", "Attrezzatura", "Attrezzatura Necessaria")
     home_gym = _get("homeGym", "home_gym", "Home Gym", "homegym").lower() or "no"
 
     try:
@@ -169,7 +169,7 @@ def ingest(
     normalized = [
         normalize_exercise(r)
         for r in raw_list
-        if r.get("name") or r.get("nome") or r.get("Name")
+        if r.get("name") or r.get("nome") or r.get("Name") or r.get("Esercizio")
     ]
 
     docs = [
