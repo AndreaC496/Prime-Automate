@@ -93,7 +93,7 @@ def extract_json(raw: str) -> str:
             if depth == 0:
                 return raw[start : i + 1]
 
-    return raw[start:]
+    raise ValueError("Unterminated JSON object in model response")
 
 
 # ── LLM call ──────────────────────────────────────────────────────────────────
@@ -122,7 +122,10 @@ async def call_llm(system_prompt: str, user_prompt: str, extra_hint: str = "") -
         )
     resp.raise_for_status()
     data = resp.json()
-    content = data["choices"][0]["message"]["content"]
+    choices = data.get("choices") or []
+    if not choices:
+        raise ValueError(f"Unexpected LLM response: {data}")
+    content = choices[0]["message"]["content"]
     if not content:
         raise ValueError("Empty response from model")
     return content

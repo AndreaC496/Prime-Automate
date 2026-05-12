@@ -93,10 +93,12 @@ def test_generate_503_when_retriever_none():
     import main
     original = main.retriever
     main.retriever = None
-    client = TestClient(main.app)
-    resp = client.post("/generate", json=VALID_PAYLOAD)
-    assert resp.status_code == 503
-    main.retriever = original
+    try:
+        client = TestClient(main.app)
+        resp = client.post("/generate", json=VALID_PAYLOAD)
+        assert resp.status_code == 503
+    finally:
+        main.retriever = original
 
 
 def test_generate_missing_field_422():
