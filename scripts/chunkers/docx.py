@@ -6,6 +6,8 @@ _ENC = tiktoken.get_encoding("cl100k_base")
 
 
 def _split_tokens(text: str, chunk_size: int, overlap: int) -> list[str]:
+    if overlap >= chunk_size:
+        raise ValueError(f"overlap ({overlap}) must be less than chunk_size ({chunk_size})")
     tokens = _ENC.encode(text)
     chunks = []
     start = 0
