@@ -34,9 +34,9 @@ _MUSCLE_MAP: dict[str, str] = {
 
 def map_muscle(primary_muscle: str) -> str | None:
     lower = primary_muscle.lower()
-    for key, val in _MUSCLE_MAP.items():
+    for key in sorted(_MUSCLE_MAP, key=len, reverse=True):
         if key in lower:
-            return val
+            return _MUSCLE_MAP[key]
     return None
 
 

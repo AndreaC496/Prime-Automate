@@ -89,7 +89,7 @@ def test_count_sets_ignores_unknown_muscles():
     prefs = _make_prefs()
     plan = _make_plan([("Core", 3)], prefs)
     counts = count_sets_by_muscle(plan)
-    assert "petto" not in counts
+    assert counts == {}
 
 
 # ── validate_volume ───────────────────────────────────────────────────────────
@@ -108,6 +108,7 @@ def test_validate_non_priority_below_mev_is_warning_only():
     plan = _make_plan([("Gran dorsale", 15)], prefs)
     critical, warnings = validate_volume(plan, prefs)
     assert not any("schiena" in c for c in critical)
+    assert any("petto" in w for w in warnings)
 
 
 def test_validate_over_mav_is_warning():
