@@ -5,7 +5,7 @@ create extension if not exists vector;
 create table if not exists document_chunks (
   id          uuid primary key default gen_random_uuid(),
   content     text not null,
-  embedding   vector(2048),
+  embedding   halfvec(2048),
   fts         tsvector generated always as
                 (to_tsvector('italian', content)) stored,
   metadata    jsonb not null default '{}',
@@ -16,7 +16,7 @@ create table if not exists document_chunks (
 
 -- Indice HNSW per ricerca vettoriale (approximate nearest neighbor)
 create index if not exists document_chunks_embedding_idx
-  on document_chunks using hnsw (embedding vector_cosine_ops)
+  on document_chunks using hnsw (embedding halfvec_cosine_ops)
   with (m = 32, ef_construction = 128);
 
 -- Indice GIN per full-text search italiano
@@ -29,7 +29,7 @@ create index if not exists document_chunks_metadata_idx
 
 -- Funzione di ricerca ibrida con Reciprocal Rank Fusion
 create or replace function match_documents(
-  query_embedding  vector(2048),
+  query_embedding  halfvec(2048),
   query_text       text,
   filter_metadata  jsonb    default '{}',
   match_count      int      default 10,
