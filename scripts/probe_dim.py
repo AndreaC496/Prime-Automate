@@ -1,18 +1,21 @@
 import os
+import httpx
 from dotenv import load_dotenv
-from openai import OpenAI
+from pathlib import Path
 
-load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", ".env"))
+load_dotenv(dotenv_path=Path(__file__).parent.parent / ".env")
 
-client = OpenAI(
-    api_key=os.getenv("OPENROUTER_API_KEY"),
-    base_url="https://openrouter.ai/api/v1",
+api_key = os.environ["OPENROUTER_API_KEY"]
+model = os.environ["EMBED_MODEL"]
+
+response = httpx.post(
+    "https://openrouter.ai/api/v1/embeddings",
+    headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+    json={"model": model, "input": ["test dimensione embedding"]},
+    timeout=30,
 )
-
-response = client.embeddings.create(
-    model=os.getenv("EMBED_MODEL"),
-    input=["test dimensione embedding"],
-)
-dim = len(response.data[0].embedding)
+response.raise_for_status()
+data = response.json()
+dim = len(data["data"][0]["embedding"])
 print(f"Embedding dimension: {dim}")
 print(f"Usa vector({dim}) nello schema SQL.")
