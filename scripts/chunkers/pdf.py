@@ -1,3 +1,4 @@
+import os
 import shutil
 import fitz  # pymupdf
 import tiktoken
@@ -28,13 +29,17 @@ def _ocr_page(page) -> str:
         import io
 
         # Ensure tesseract binary is found on Windows
-        tess_path = shutil.which("tesseract") or r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-        pytesseract.pytesseract.tesseract_cmd = tess_path
+        pytesseract.pytesseract.tesseract_cmd = (
+            os.environ.get("TESSERACT_CMD")
+            or shutil.which("tesseract")
+            or r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+        )
 
         pix = page.get_pixmap(matrix=fitz.Matrix(2, 2))
         img = Image.open(io.BytesIO(pix.tobytes("png")))
         return pytesseract.image_to_string(img, lang="ita+eng")
-    except Exception:
+    except Exception as e:
+        print(f"  [OCR WARNING] pagina {page.number}: {e}", flush=True)
         return ""
 
 
