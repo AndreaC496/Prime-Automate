@@ -20,6 +20,8 @@ def _call_embeddings_api(api_key: str, model: str, texts: list[str]) -> list[lis
 
 def probe_embedding_dim(api_key: str, model: str) -> int:
     embeddings = _call_embeddings_api(api_key, model, ["probe"])
+    if not embeddings:
+        raise RuntimeError("probe_embedding_dim: API returned empty embeddings list")
     return len(embeddings[0])
 
 

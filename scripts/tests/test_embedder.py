@@ -1,12 +1,6 @@
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 import pytest
 from embedder import embed_batch, probe_embedding_dim
-
-
-def _mock_response(dim: int, n: int = 1):
-    response = MagicMock()
-    response.data = [MagicMock(embedding=[0.1] * dim) for _ in range(n)]
-    return response
 
 
 def test_probe_embedding_dim():
