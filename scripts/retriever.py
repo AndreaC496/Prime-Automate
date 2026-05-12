@@ -6,7 +6,7 @@ def search(
     api_key: str,
     model: str,
     query: str,
-    filters: dict = {},
+    filters: dict | None = None,
     top_k: int = 10,
 ) -> list[dict]:
     """
@@ -23,6 +23,7 @@ def search(
     Returns:
         List of matching documents with metadata and similarity scores
     """
+    filters = filters or {}
     embeddings = _call_embeddings_api(api_key, model, [query])
     embedding = embeddings[0]
     result = supabase_client.rpc(
