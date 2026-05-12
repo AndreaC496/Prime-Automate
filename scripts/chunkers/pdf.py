@@ -20,27 +20,25 @@ def _split_tokens(text: str, chunk_size: int, overlap: int) -> list[str]:
 
 
 def chunk_pdf(filepath: str, chunk_size: int = 500, overlap: int = 100) -> list[dict]:
-    doc = fitz.open(filepath)
     chunks = []
-
-    for page_num, page in enumerate(doc, start=1):
-        text = page.get_text("text").strip()
-        if not text:
-            continue
-        for part in _split_tokens(text, chunk_size, overlap):
-            part = part.strip()
-            if part:
-                chunks.append({
-                    "content": part,
-                    "metadata": {
+    with fitz.open(filepath) as doc:
+        for page_num, page in enumerate(doc, start=1):
+            text = page.get_text("text").strip()
+            if not text:
+                continue
+            for part in _split_tokens(text, chunk_size, overlap):
+                part = part.strip()
+                if part:
+                    chunks.append({
+                        "content": part,
+                        "metadata": {
+                            "doc_type": "manual",
+                            "page": page_num,
+                            "section": "",
+                            "topic": "",
+                        },
+                        "source": filepath,
                         "doc_type": "manual",
-                        "page": page_num,
-                        "section": "",
-                        "topic": "",
-                    },
-                    "source": filepath,
-                    "doc_type": "manual",
-                })
+                    })
 
-    doc.close()
     return chunks
