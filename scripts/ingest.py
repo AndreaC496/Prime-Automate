@@ -30,6 +30,11 @@ def main() -> None:
     print("Rilevamento dimensione embedding...")
     dim = probe_embedding_dim(OPENROUTER_KEY, EMBED_MODEL)
     print(f"  Dimensione: {dim}")
+    if dim != 2048:
+        raise RuntimeError(
+            f"Schema atteso halfvec(2048) ma il modello restituisce {dim} dimensioni. "
+            f"Aggiorna schema.sql e ricrea la tabella."
+        )
 
     for filepath, doc_type_label, chunker in SOURCES:
         if not filepath.exists():

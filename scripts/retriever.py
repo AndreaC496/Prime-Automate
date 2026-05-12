@@ -1,4 +1,4 @@
-from embedder import _call_embeddings_api
+from embedder import embed_query
 
 
 def search(
@@ -24,8 +24,7 @@ def search(
         List of matching documents with metadata and similarity scores
     """
     filters = filters or {}
-    embeddings = _call_embeddings_api(api_key, model, [query])
-    embedding = embeddings[0]
+    embedding = embed_query(api_key, model, query)
     result = supabase_client.rpc(
         "match_documents",
         {

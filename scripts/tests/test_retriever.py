@@ -11,8 +11,8 @@ def _mock_supabase(results: list[dict]):
 
 def test_search_returns_results():
     sb = _mock_supabase([{"id": "1", "content": "Panca piana", "similarity": 0.9}])
-    with patch("retriever._call_embeddings_api") as mock_embed:
-        mock_embed.return_value = [[0.1] * 2048]
+    with patch("retriever.embed_query") as mock_embed:
+        mock_embed.return_value = [0.1] * 2048
         results = search(sb, "test-key", "test-model", "esercizi petto")
     assert len(results) == 1
     assert results[0]["content"] == "Panca piana"
@@ -20,8 +20,8 @@ def test_search_returns_results():
 
 def test_search_calls_rpc_with_correct_params():
     sb = _mock_supabase([])
-    with patch("retriever._call_embeddings_api") as mock_embed:
-        mock_embed.return_value = [[0.1] * 2048]
+    with patch("retriever.embed_query") as mock_embed:
+        mock_embed.return_value = [0.1] * 2048
         search(sb, "test-key", "test-model", "dorsali",
                filters={"doc_type": "exercise"}, top_k=5)
     sb.rpc.assert_called_once_with(
@@ -37,7 +37,7 @@ def test_search_calls_rpc_with_correct_params():
 
 def test_search_empty_results():
     sb = _mock_supabase([])
-    with patch("retriever._call_embeddings_api") as mock_embed:
-        mock_embed.return_value = [[0.1] * 2048]
+    with patch("retriever.embed_query") as mock_embed:
+        mock_embed.return_value = [0.1] * 2048
         results = search(sb, "test-key", "test-model", "query senza risultati")
     assert results == []

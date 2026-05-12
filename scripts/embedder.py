@@ -38,3 +38,11 @@ def embed_batch(
         batch = texts[i : i + batch_size]
         embeddings.extend(_call_embeddings_api(api_key, model, batch))
     return embeddings
+
+
+def embed_query(api_key: str, model: str, text: str) -> list[float]:
+    """Embed a single query string. Returns the embedding vector."""
+    embeddings = _call_embeddings_api(api_key, model, [text])
+    if not embeddings:
+        raise RuntimeError("embed_query: API returned empty embeddings list")
+    return embeddings[0]
